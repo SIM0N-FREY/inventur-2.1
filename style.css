@@ -1,0 +1,139 @@
+:root {
+    --primary-color: #00897B;
+    --background-color: #FFB300;
+    --text-color: #333;
+    --error-color: #dc2626;
+    --success-color: #16a34a;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+}
+
+.container {
+    width: 95%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 90%;
+    padding: 8px;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    font-size: 16px;
+    display: block;
+    margin: 0 auto;
+}
+
+.radio-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+}
+
+.result {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    text-align: center;
+}
+
+button {
+    width: 90%;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: block;
+    margin: 10px auto;
+}
+
+.primary-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.finish-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Dialog Styles */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90%;
+    width: 400px;
+}
+
+.dialog-body {
+    margin: 20px 0;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.abort-button {
+    background-color: var(--error-color);
+    color: white;
+    width: auto;
+}
+
+.confirm-button {
+    background-color: var(--success-color);
+    color: white;
+    width: auto;
+}
+
+.abort-button:hover {
+    background-color: #b91c1c;
+}
+
+.confirm-button:hover {
+    background-color: #15803d;
+}
