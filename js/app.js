@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const BOX_WEIGHT = 60;
-    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us'; // Replace with your Google Sheet ID
+    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us';
 
     // Get DOM elements
     const categoryGroup = document.getElementById('categoryGroup');
@@ -56,10 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initGoogleSheetsAPI() {
         try {
             await gapi.client.init({
-                apiKey: 'AIzaSyB7435gKOUszcuQrOj6sXFD-HSVka650xs', // Replace with your API key
-                clientId: '611626969566-074cgekp3nfbkhbbamikpodrs9dq7huj.apps.googleusercontent.com', // Replace with your Client ID
-                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
-                scope: "https://www.googleapis.com/auth/spreadsheets"
+                apiKey: 'AIzaSyB7435gKOUszcuQrOj6sXFD-HSVka650xs',
+                clientId: '611626969566-074cgekp3nfbkhbbamikpodrs9dq7huj.apps.googleusercontent.com',
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                scope: 'https://www.googleapis.com/auth/spreadsheets'
             });
             console.log('Google Sheets API initialized');
         } catch (error) {
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 valueInputOption: 'USER_ENTERED',
                 resource: { values }
             });
-            console.log('Data appended successfully');
+            console.log('Data appended successfully', response.result);
             return response;
         } catch (error) {
             console.error('Error appending data:', error);
@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initialize Google Sheets API when page loads
     gapi.load('client:auth2', initGoogleSheetsAPI);
 
     // Create category radio buttons
@@ -129,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     calculateBtn.addEventListener('click', () => {
         const selectedCategory = document.querySelector('input[name="category"]:checked')?.value;
         const selectedItem = itemSelect.value;
-        
+
         if (!selectedCategory || !selectedItem) {
             alert('Bitte wählen Sie eine Kategorie und einen Artikel');
             return;
@@ -171,10 +170,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     confirmBtn.addEventListener('click', async () => {
-        const selectedCategory = document.querySelector('input[name="category"]:checked').value;
+        const selectedCategory = document.querySelector('input[name="category"]:checked')?.value;
         const selectedItem = itemSelect.value;
-        
-        // Format data for Google Sheets
+
+        if (!selectedCategory || !selectedItem) {
+            alert('Bitte wählen Sie eine Kategorie und einen Artikel');
+            return;
+        }
+
         const formattedData = {
             boxNumber: `Box ${document.getElementById('boxNumber').value.padStart(3, '0')}`,
             category: selectedCategory,
@@ -186,20 +189,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 minute: '2-digit',
                 hour12: false
             }),
-            signature: "JS" // You might want to make this dynamic
+            signature: "JS"
         };
 
         try {
-            // First check if user is authenticated
             if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
                 await gapi.auth2.getAuthInstance().signIn();
             }
-            
-            // Append data to Google Sheet
+
             await appendToSheet(formattedData);
             console.log('Inventory saved successfully:', formattedData);
 
-            // Reset form
             document.getElementById('boxNumber').value = '';
             document.querySelector('input[name="category"]:checked').checked = false;
             itemSelectGroup.style.display = 'none';
