@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Existing inventory data
     const inventoryData = {
         '8Ø': [
             { name: '3/3', weight: 3.9 },
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const BOX_WEIGHT = 60;
+    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us/edit?gid=0#gid=0'; // Replace with your Google Sheet ID
 
     // Get DOM elements
     const categoryGroup = document.getElementById('categoryGroup');
@@ -49,6 +51,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmCount = document.getElementById('confirmCount');
     const abortBtn = document.getElementById('abortBtn');
     const confirmBtn = document.getElementById('confirmBtn');
+
+    // Google Sheets API Functions
+    async function initGoogleSheetsAPI() {
+        try {
+            await gapi.client.init({
+                apiKey: 'AIzaSyB7435gKOUszcuQrOj6sXFD-HSVka650xs', // Replace with your API key
+                clientId: '611626969566-074cgekp3nfbkhbbamikpodrs9dq7huj.apps.googleusercontent.com', // Replace with your Client ID
+                discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                scope: "https://www.googleapis.com/auth/spreadsheets"
+            });
+            console.log('Google Sheets API initialized');
+        } catch (error) {
+            console.error('Error initializing Google Sheets API:', error);
+        }
+    }
+
+    async function appendToSheet(formattedData) {
+        const range = 'Sheet1!A:G';
+        const values = [
+            [
+                formattedData.boxNumber,
+                formattedData.category,
+                formattedData.item,
+                formattedData.count,
+                formattedData.date,
+                formattedData.time,
+                formattedData.signature
+            ]
+        ];
+
+        try {
+            const response = await gapi.client.sheets.spreadsheets.values.append({
+                spreadsheetId: SPREADSHEET_ID,
+                range: range,
+                valueInputOption: 'USER_ENTERED',
+                resource: { values }
+            });
+            console.log('Data appended successfully');
+            return response;
+        } catch (error) {
+            console.error('Error appending data:', error);
+            throw error;
+        }
+    }
+
+    // Initialize Google Sheets API when page loads
+    gapi.load('client:auth2', initGoogleSheetsAPI);
 
     // Create category radio buttons
     Object.keys(inventoryData).forEach(category => {
@@ -121,26 +170,47 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmDialog.style.display = 'none';
     });
 
-    confirmBtn.addEventListener('click', () => {
+    confirmBtn.addEventListener('click', async () => {
         const selectedCategory = document.querySelector('input[name="category"]:checked').value;
         const selectedItem = itemSelect.value;
         
-        console.log('Saving inventory:', {
-            boxNumber: document.getElementById('boxNumber').value,
+        // Format data for Google Sheets
+        const formattedData = {
+            boxNumber: `Box ${document.getElementById('boxNumber').value.padStart(3, '0')}`,
             category: selectedCategory,
             item: selectedItem,
-            weight: boxWeight.value,
             count: countResult.textContent,
-            timestamp: new Date().toISOString()
-        });
+            date: new Date().toLocaleDateString('de-DE'),
+            time: new Date().toLocaleTimeString('de-DE', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }),
+            signature: "JS" // You might want to make this dynamic
+        };
 
-        // Reset form
-        document.getElementById('boxNumber').value = '';
-        document.querySelector('input[name="category"]:checked').checked = false;
-        itemSelectGroup.style.display = 'none';
-        itemSelect.value = '';
-        boxWeight.value = '';
-        countResult.textContent = '-';
-        confirmDialog.style.display = 'none';
+        try {
+            // First check if user is authenticated
+            if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                await gapi.auth2.getAuthInstance().signIn();
+            }
+            
+            // Append data to Google Sheet
+            await appendToSheet(formattedData);
+            console.log('Inventory saved successfully:', formattedData);
+
+            // Reset form
+            document.getElementById('boxNumber').value = '';
+            document.querySelector('input[name="category"]:checked').checked = false;
+            itemSelectGroup.style.display = 'none';
+            itemSelect.value = '';
+            boxWeight.value = '';
+            countResult.textContent = '-';
+            confirmDialog.style.display = 'none';
+
+        } catch (error) {
+            console.error('Error saving inventory:', error);
+            alert('Fehler beim Speichern der Daten. Bitte versuchen Sie es erneut.');
+        }
     });
 });
