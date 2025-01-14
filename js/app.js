@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const BOX_WEIGHT = 60;
-    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us/edit?gid=0#gid=0'; // Replace with your Google Sheet ID
+    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us'; // Replace with your Google Sheet ID
 
     // Get DOM elements
     const categoryGroup = document.getElementById('categoryGroup');
