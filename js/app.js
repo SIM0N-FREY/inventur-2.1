@@ -1,3 +1,59 @@
+// Füge diese Logging-Funktion am Anfang der app.js hinzu
+function logError(step, error) {
+    console.group('Error at step: ' + step);
+    console.error('Error object:', error);
+    console.error('Error type:', typeof error);
+    console.error('Error message:', error.message);
+    console.error('Error name:', error.name);
+    if (error.result) {
+        console.error('API Error:', error.result);
+    }
+    console.error('Stack:', error.stack);
+    console.groupEnd();
+}
+
+// Modifiziere die initGoogleAPI Funktion
+function initGoogleAPI() {
+    console.log('Starting Google API initialization');
+    gapi.load('client:auth2', () => {
+        console.log('Loaded client:auth2');
+        gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            scope: SCOPE,
+            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+        }).then(() => {
+            console.log('Google API initialized successfully');
+        }).catch(error => {
+            logError('API initialization', error);
+            showStatus('Fehler bei API-Initialisierung: ' + error.message, true);
+        });
+    });
+}
+
+// Modifiziere die appendToSheet Funktion
+async function appendToSheet(data) {
+    try {
+        console.log('Starting save process');
+        console.log('Auth instance:', gapi.auth2?.getAuthInstance());
+        
+        if (!gapi.auth2?.getAuthInstance()) {
+            throw new Error('Auth instance not initialized');
+        }
+
+        const authInstance = gapi.auth2.getAuthInstance();
+        console.log('Current sign-in status:', authInstance.isSignedIn.get());
+
+        // Rest des Codes...
+
+    } catch (error) {
+        logError('appendToSheet', error);
+        showStatus(`Fehler: ${error.message}`, true);
+        return false;
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // Existing inventory data
     const inventoryData = {
