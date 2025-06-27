@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             counted: counted
         };
 
-        const url = "https://script.google.com/macros/s/AKfycbx0ZFZE_T4Gvc4LAlIo83EkZ4AY2-GOFmNah2NOjiz5SBK1Vn8P84PXK1zl5lVJwgAS/exec" ; // <--- DEINE URL HIER!
+        const url = "https://hooks.zapier.com/hooks/catch/21032211/ubriux6/" ; // <--- DEINE URL HIER!
 
         fetch(url, {
             method: "POST",
