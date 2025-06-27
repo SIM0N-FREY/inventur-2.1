@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Existing inventory data
     const inventoryData = {
         '8Ø': [
             { name: '3/3', weight: 3.9 },
@@ -35,9 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const BOX_WEIGHT = 65;
-    const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us';
 
-    // Get DOM elements
+    // DOM Elements
     const categoryGroup = document.getElementById('categoryGroup');
     const itemSelect = document.getElementById('itemSelect');
     const itemSelectGroup = document.getElementById('itemSelectGroup');
@@ -51,54 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmCount = document.getElementById('confirmCount');
     const abortBtn = document.getElementById('abortBtn');
     const confirmBtn = document.getElementById('confirmBtn');
+    const statusMsg = document.getElementById('statusMsg');
 
-    // Google Sheets API Functions
-    async function initGoogleSheetsAPI() {
-        try {
-            await gapi.client.init({
-                apiKey: 'AIzaSyB7435gKOUszcuQrOj6sXFD-HSVka650xs',
-                clientId: '611626969566-074cgekp3nfbkhbbamikpodrs9dq7huj.apps.googleusercontent.com',
-                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-                scope: 'https://www.googleapis.com/auth/spreadsheets'
-            });
-            console.log('Google Sheets API initialized');
-        } catch (error) {
-            console.error('Error initializing Google Sheets API:', error);
-        }
-    }
-
-    async function appendToSheet(formattedData) {
-        const range = 'Sheet1!A:G';
-        const values = [
-            [
-                formattedData.boxNumber,
-                formattedData.category,
-                formattedData.item,
-                formattedData.count,
-                formattedData.date,
-                formattedData.time,
-                formattedData.signature
-            ]
-        ];
-
-        try {
-            const response = await gapi.client.sheets.spreadsheets.values.append({
-                spreadsheetId: SPREADSHEET_ID,
-                range: range,
-                valueInputOption: 'USER_ENTERED',
-                resource: { values }
-            });
-            console.log('Data appended successfully', response.result);
-            return response;
-        } catch (error) {
-            console.error('Error appending data:', error);
-            throw error;
-        }
-    }
-
-    gapi.load('client:auth2', initGoogleSheetsAPI);
-
-    // Create category radio buttons
+    // Kategorie-Auswahl dynamisch aufbauen
     Object.keys(inventoryData).forEach(category => {
         const label = document.createElement('label');
         const input = document.createElement('input');
@@ -144,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const netWeight = boxWeightValue - BOX_WEIGHT;
         if (netWeight <= 0) {
-            alert('Gesamtgewicht muss größer als das Kistengewicht (60kg) sein');
+            alert('Gesamtgewicht muss größer als das Kistengewicht (65 kg) sein');
             return;
         }
 
@@ -169,37 +122,36 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmDialog.style.display = 'none';
     });
 
-    confirmBtn.addEventListener('click', async () => {
+    confirmBtn.addEventListener('click', () => {
         const selectedCategory = document.querySelector('input[name="category"]:checked')?.value;
         const selectedItem = itemSelect.value;
+        const box = document.getElementById('boxNumber').value;
+        const weight = parseFloat(boxWeight.value);
+        const counted = parseFloat(countResult.textContent);
 
-        if (!selectedCategory || !selectedItem) {
-            alert('Bitte wählen Sie eine Kategorie und einen Artikel');
+        if (!selectedCategory || !selectedItem || !box || isNaN(weight) || isNaN(counted)) {
+            alert('Bitte alle Felder korrekt ausfüllen');
             return;
         }
 
-        const formattedData = {
-            boxNumber: `Box ${document.getElementById('boxNumber').value.padStart(3, '0')}`,
-            category: selectedCategory,
-            item: selectedItem,
-            count: countResult.textContent,
-            date: new Date().toLocaleDateString('de-DE'),
-            time: new Date().toLocaleTimeString('de-DE', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            }),
-            signature: "JS"
+        const daten = {
+            box: `Box ${box.padStart(3, '0')}`,
+            material: selectedItem,
+            weight: weight,
+            counted: counted
         };
 
-        try {
-            if (!gapi.auth2.getAuthInstance().isSignedIn.get()) {
-                await gapi.auth2.getAuthInstance().signIn();
-            }
+        const url = "https://script.google.com/macros/s/AKfycbzFILyaiBXp58Rnsy7oGoGy6PLKA7_Ka5Rnl0cls1sxJhlqkbJCv-9wo0L2ZhC7Pb0vKA/exec"; // <--- DEINE URL HIER!
 
-            await appendToSheet(formattedData);
-            console.log('Inventory saved successfully:', formattedData);
-
+        fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(daten)
+        })
+        .then(response => response.text())
+        .then(text => {
+            zeigeStatus("✅ Erfolgreich gespeichert!", "green");
+            // Zurücksetzen
             document.getElementById('boxNumber').value = '';
             document.querySelector('input[name="category"]:checked').checked = false;
             itemSelectGroup.style.display = 'none';
@@ -207,10 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
             boxWeight.value = '';
             countResult.textContent = '-';
             confirmDialog.style.display = 'none';
-
-        } catch (error) {
-            console.error('Error saving inventory:', error);
-            alert('Fehler beim Speichern der Daten. Bitte versuchen Sie es erneut.');
-        }
+        })
+        .catch(error => {
+            zeigeStatus("❌ Fehler beim Speichern!", "red");
+            console.error(error);
+        });
     });
+
+    function zeigeStatus(text, farbe) {
+        statusMsg.textContent = text;
+        statusMsg.style.display = 'block';
+        statusMsg.style.backgroundColor = farbe === "green" ? "#C8E6C9" : "#FFCDD2";
+        statusMsg.style.color = farbe === "green" ? "#256029" : "#B71C1C";
+    }
 });
