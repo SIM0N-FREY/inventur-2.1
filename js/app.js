@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: '3/3', weight: 3.3 },
             { name: '3/6', weight: 3.6 },
             { name: '6/6', weight: 4.0 },
-            { name: '3', weight: 1.3 },
+            { name: '3', weight: 1.6 },
             { name: '6', weight: 2.0 },
             { name: '5', weight: 0.7 },
             { name: '10', weight: 1.4 },
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    const BOX_WEIGHT = 60;
+    const BOX_WEIGHT = 65;
     const SPREADSHEET_ID = '1RoqDCDmWotqb5hO1xGePMUsfe1uxNqqL8DA8_dqR1us';
 
     // Get DOM elements
