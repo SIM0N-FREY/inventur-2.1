@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             counted: counted
         };
 
-        const url = "https://script.google.com/macros/s/AKfycbzFILyaiBXp58Rnsy7oGoGy6PLKA7_Ka5Rnl0cls1sxJhlqkbJCv-9wo0L2ZhC7Pb0vKA/exec"; // <--- DEINE URL HIER!
+        const url = "https://script.google.com/macros/s/AKfycbw7-4SGlizeNsU_kTTksIVAd36928AeS-9aFbeMUVMOMfU5VZrzedKQxtpOdVDN1fqhhQ/exec"; // <--- DEINE URL HIER!
 
         fetch(url, {
             method: "POST",
