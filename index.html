@@ -81,5 +81,50 @@
         }
     </script>
     <script src="js/app-v2.js"></script>
+
+<script>
+    document.getElementById("fertigBtn").addEventListener("click", () => {
+        const url = "https://script.google.com/macros/s/AKfycbzFILyaiBXp58Rnsy7oGoGy6PLKA7_Ka5Rnl0cls1sxJhlqkbJCv-9wo0L2ZhC7Pb0vKA/exec" ;
+
+        const box = document.getElementById("boxNumber").value;
+        const material = document.getElementById("itemSelect").value;
+        const weight = parseFloat(document.getElementById("boxWeight").value);
+        const counted = parseInt(document.getElementById("countResult").textContent);
+
+        if (!box || !material || isNaN(weight) || isNaN(counted)) {
+            alert("Bitte alle Felder ausfüllen und berechnen!");
+            return;
+        }
+
+        const daten = {
+            box: box,
+            material: material,
+            weight: weight,
+            counted: counted
+        };
+
+        fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(daten)
+        })
+        .then(response => response.text())
+        .then(text => {
+            zeigeStatus("✅ Erfolgreich gespeichert!", "green");
+        })
+        .catch(error => {
+            zeigeStatus("❌ Fehler beim Speichern: " + error, "red");
+        });
+    });
+
+    function zeigeStatus(text, farbe) {
+        const msgBox = document.getElementById("statusMsg");
+        msgBox.textContent = text;
+        msgBox.style.display = "block";
+        msgBox.style.backgroundColor = farbe === "green" ? "#C8E6C9" : "#FFCDD2";
+        msgBox.style.color = farbe === "green" ? "#256029" : "#B71C1C";
+    }
+</script>
+
 </body>
 </html>
