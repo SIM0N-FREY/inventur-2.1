@@ -1,4 +1,4 @@
-8<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
@@ -12,16 +12,16 @@
 <body>
     <div class="container">
         <h1>Inventur 2.0</h1>
-        
+
         <div class="input-group">
-            <label for="boxNumber">Box Nr.:</label>
-            <input type="text" id="boxNumber" required>
+            <label for="boxNumber">Eigengewicht Gitterbox (kg):</label>
+            <input type="text" id="boxNumber" placeholder="65">
         </div>
 
         <div class="input-group">
             <label>Kategorie:</label>
             <div class="radio-group" id="categoryGroup">
-                <!-- Radio buttons will be inserted here by JavaScript -->
+                <!-- Dynamisch via JS -->
             </div>
         </div>
 
@@ -31,31 +31,31 @@
                 <option value="">Bitte wählen...</option>
             </select>
         </div>
-        
+
         <div class="input-group">
-            <label for="boxWeight">Gewicht GiBo (kg):</label>
+            <label for="boxWeight">Gesamtgewicht inkl. Inhalt (kg):</label>
             <input type="number" id="boxWeight" step="0.01" required>
         </div>
-        
+
         <div class="result">
             <span>Stückzahl: </span>
             <span id="countResult">-</span>
         </div>
-        
+
         <button id="calculateBtn" class="primary-button">Berechnen</button>
         <button id="fertigBtn" class="finish-button">FERTIG</button>
 
-        <!-- Status Message Container -->
         <div id="statusMsg" style="display: none; margin-top: 10px; padding: 10px; border-radius: 4px; text-align: center;"></div>
     </div>
 
-    <!-- Confirmation Dialog -->
+    <!-- Dialog 1: Bestätigung -->
     <div id="confirmDialog" class="dialog-overlay" style="display: none;">
         <div class="dialog-content">
             <h2>Bitte überprüfe deine Eingaben</h2>
             <div class="dialog-body">
-                <p><strong>Box Nr.:</strong> <span id="confirmBoxNumber"></span></p>
+                <p><strong>Material:</strong> <span id="confirmMaterial"></span></p>
                 <p><strong>Gesamtgewicht:</strong> <span id="confirmWeight"></span> kg</p>
+                <p><strong>Eigengewicht:</strong> <span id="confirmEmptyWeight"></span> kg</p>
                 <p><strong>Stückzahl:</strong> <span id="confirmCount"></span></p>
             </div>
             <div class="dialog-buttons">
@@ -65,20 +65,20 @@
         </div>
     </div>
 
-    <script>
-        // Register Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/js/service-worker.js')
-                    .then((registration) => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch((err) => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-    </script>
+    <!-- Dialog 2: Boxnummer eingeben -->
+    <div id="boxNumberDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content">
+            <h2>Bitte Boxnummer eingeben</h2>
+            <div class="dialog-body">
+                <input type="text" id="finalBoxNumber" placeholder="z. B. 001">
+            </div>
+            <div class="dialog-buttons">
+                <button id="boxAbortBtn" class="abort-button">Abbruch</button>
+                <button id="boxConfirmBtn" class="confirm-button">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/app-v2.js"></script>
 </body>
 </html>
