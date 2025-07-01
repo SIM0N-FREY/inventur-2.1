@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: '6', weight: 2.6 },
             { name: '5', weight: 1.4 },
             { name: '10', weight: 2.5 },
-            { name: '15', weight: 3.6 }
+            { name: '15', weight: 3.6 },
+            { name: "Drop 3m", weight: 2.0 },
+            { name: "Drop 6m", weight: 2.7 }
         ],
         '6Ø': [
             { name: '3/3', weight: 3.3 },
@@ -18,12 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: '6', weight: 2.0 },
             { name: '5', weight: 0.7 },
             { name: '10', weight: 1.4 },
-            { name: '15', weight: 2.0 }
+            { name: '15', weight: 2.0 },
+            { name: "Drop 3m", weight: 1.7 },
+            { name: "Drop 6m", weight: 2.1 }
         ],
         'Sonst.': [
-            { name: 'Schäkel 1t', weight: 666 },
+            { name: 'Schäkel 1t', weight: 0.1 },
             { name: 'Schäkel 2t', weight: 666 },
-            { name: 'Anschlag 1,5m', weight: 666 },
+            { name: 'Anschlag 1,5m', weight: 1.8 },
             { name: 'Anschlag 3m', weight: 666 },
             { name: 'O-Ring', weight: 666 }
         ],
@@ -33,9 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
     };
 
-    const BOX_WEIGHT = 65;
-
-    // DOM Elements
     const categoryGroup = document.getElementById('categoryGroup');
     const itemSelect = document.getElementById('itemSelect');
     const itemSelectGroup = document.getElementById('itemSelectGroup');
@@ -44,14 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculateBtn = document.getElementById('calculateBtn');
     const fertigBtn = document.getElementById('fertigBtn');
     const confirmDialog = document.getElementById('confirmDialog');
-    const confirmBoxNumber = document.getElementById('confirmBoxNumber');
+    const confirmMaterial = document.getElementById('confirmMaterial');
     const confirmWeight = document.getElementById('confirmWeight');
+    const confirmEmptyWeight = document.getElementById('confirmEmptyWeight');
     const confirmCount = document.getElementById('confirmCount');
     const abortBtn = document.getElementById('abortBtn');
     const confirmBtn = document.getElementById('confirmBtn');
     const statusMsg = document.getElementById('statusMsg');
 
-    // Kategorie-Auswahl dynamisch aufbauen
+    const boxNumberDialog = document.getElementById('boxNumberDialog');
+    const boxAbortBtn = document.getElementById('boxAbortBtn');
+    const boxConfirmBtn = document.getElementById('boxConfirmBtn');
+
     Object.keys(inventoryData).forEach(category => {
         const label = document.createElement('label');
         const input = document.createElement('input');
@@ -91,13 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const boxWeightValue = parseFloat(boxWeight.value);
 
         if (isNaN(boxWeightValue)) {
-            alert('Bitte geben Sie ein gültiges Gewicht ein');
+            alert('Bitte geben Sie ein gültiges Gesamtgewicht ein');
             return;
         }
 
-        const netWeight = boxWeightValue - BOX_WEIGHT;
+        const emptyBoxValue = parseFloat(document.getElementById('boxNumber').value);
+        const emptyBoxWeight = isNaN(emptyBoxValue) ? 65 : emptyBoxValue;
+
+        const netWeight = boxWeightValue - emptyBoxWeight;
+
         if (netWeight <= 0) {
-            alert('Gesamtgewicht muss größer als das Kistengewicht (65 kg) sein');
+            alert(`Gesamtgewicht muss größer als das Eigengewicht der Gitterbox (${emptyBoxWeight} kg) sein`);
             return;
         }
 
@@ -106,15 +115,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     fertigBtn.addEventListener('click', () => {
-        const boxNumber = document.getElementById('boxNumber').value;
-        if (!boxNumber || countResult.textContent === '-') {
-            alert('Bitte füllen Sie alle Felder aus und berechnen Sie zuerst');
+        const selectedCategory = document.querySelector('input[name="category"]:checked')?.value;
+        const selectedItem = itemSelect.value;
+        const boxWeightValue = parseFloat(boxWeight.value);
+        const emptyBoxValue = parseFloat(document.getElementById('boxNumber').value);
+        const emptyBoxWeight = isNaN(emptyBoxValue) ? 65 : emptyBoxValue;
+        const counted = parseFloat(countResult.textContent);
+
+        if (!selectedCategory || !selectedItem || isNaN(boxWeightValue) || isNaN(counted)) {
+            alert('Bitte alle Felder korrekt ausfüllen und zuerst berechnen.');
             return;
         }
 
-        confirmBoxNumber.textContent = boxNumber;
-        confirmWeight.textContent = boxWeight.value;
-        confirmCount.textContent = countResult.textContent;
+        confirmMaterial.textContent = `${selectedCategory} ${selectedItem}`;
+        confirmWeight.textContent = boxWeightValue.toFixed(2);
+        confirmEmptyWeight.textContent = emptyBoxWeight.toFixed(2);
+        confirmCount.textContent = Math.round(counted);
+
         confirmDialog.style.display = 'flex';
     });
 
@@ -123,47 +140,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     confirmBtn.addEventListener('click', () => {
-        const selectedCategory = document.querySelector('input[name="category"]:checked')?.value;
-        const selectedItem = itemSelect.value;
-        const box = document.getElementById('boxNumber').value;
-        const weight = parseFloat(boxWeight.value);
-        const counted = parseFloat(countResult.textContent);
+        confirmDialog.style.display = 'none';
+        boxNumberDialog.style.display = 'flex';
+    });
 
-        if (!selectedCategory || !selectedItem || !box || isNaN(weight) || isNaN(counted)) {
-            alert('Bitte alle Felder korrekt ausfüllen');
+    boxAbortBtn.addEventListener('click', () => {
+        boxNumberDialog.style.display = 'none';
+    });
+
+    boxConfirmBtn.addEventListener('click', () => {
+        const enteredBoxNumber = document.getElementById('finalBoxNumber').value.trim();
+        if (!enteredBoxNumber) {
+            alert("Bitte Boxnummer eingeben.");
             return;
         }
 
-        const daten = {
-            box: `Box ${box.padStart(3, '0')}`,
-            material: selectedItem,
-            weight: weight,
-            counted: counted
-        };
-
-        const url = "https://script.google.com/macros/s/AKfycby852wshPqH3QDRV998-xswPQYTs9NgbI1YHDnba9mE_XENjGpfjpk60UmtmLTVh_4rgg/exec" ; // <--- DEINE URL HIER!
-
-        fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(daten)
-        })
-        .then(response => response.text())
-        .then(text => {
-            zeigeStatus("✅ Erfolgreich gespeichert!", "green");
-            // Zurücksetzen
-            document.getElementById('boxNumber').value = '';
-            document.querySelector('input[name="category"]:checked').checked = false;
-            itemSelectGroup.style.display = 'none';
-            itemSelect.value = '';
-            boxWeight.value = '';
-            countResult.textContent = '-';
-            confirmDialog.style.display = 'none';
-        })
-        .catch(error => {
-            zeigeStatus("❌ Fehler beim Speichern!", "red");
-            console.error(error);
-        });
+        boxNumberDialog.style.display = 'none';
+        zeigeStatus(`Boxnummer ${enteredBoxNumber} gespeichert (bzw. weiterverarbeitet)`, "green");
     });
 
     function zeigeStatus(text, farbe) {
