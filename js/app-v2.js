@@ -25,15 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "Drop 6m", weight: 2.1 }
         ],
         'Sonst.': [
-            { name: 'Schäkel 1t', weight: 0.1 },
-            { name: 'Schäkel 2t', weight: 666 },
+            { name: 'Schäkel 1t', weight: 0.13 },
+            { name: 'Schäkel 2t', weight: 0.36 },
             { name: 'Anschlag 1,5m', weight: 1.8 },
-            { name: 'Anschlag 3m', weight: 666 },
-            { name: 'O-Ring', weight: 666 }
+            { name: 'Anschlag 3m', weight: 2.6 },
+            { name: 'O-Ring', weight: 0.34 }
         ],
         'Strom': [
-            { name: 'PE 40m', weight: 666 },
-            { name: 'SchuKo 20m', weight: 666 }
+            { name: 'PE 40m', weight: 10.4 },
+            { name: 'SchuKo 20m', weight: 2.9 }
         ]
     };
 
